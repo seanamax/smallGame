@@ -1,9 +1,3 @@
-/** 其实， 就在run() 调用 dfs() 时， 没有初始化 flag。
-  * 有可能造成的现象，先被 bfs() 调用后， flag被改变了。
-  * 然后， 再被 dfs() 调用后， flag就 未初始化了。
-  *
-  */
-
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
@@ -97,7 +91,7 @@ void makemap( node & m );
 void getXY( P & pos );
 void getshortestpath( node & m, node & flag );
 void game( node & m );
-void edit( node &m );
+void edit( node & m );
 void dfs( path  & p, node & m, node & flag, P beginPoint );
 void printonepath( path & p, int num );
 void cancelprintonepath( path & p, int num );
@@ -127,27 +121,28 @@ void run()
     pos.second = constBeginCols;
     bool isEdit = false;
 
-    firstinterface();
     while( 1 ){
-        ch = getch();
         firstinterface();
+        ch = getch();
         if( ch == '1' ){
             playgameinterface();
-            if( isEdit == true ){
+            if( isEdit ){
                 isEdit = false;
             }
             else{
                 makemap( m );
             }
 
+            system( "cls" );
+            printmap( m );
             game( m );
         }
 
         else if( ch == '2' ){
             editgameinterface();
             while( 1 ){
+                editgameinterface();        // 优先显示 菜单, 解决 按按键才出现菜单问题
                 ch = getch();
-                editgameinterface();
                 if( ch == '4' ){
                     break;
                 }
@@ -161,21 +156,30 @@ void run()
                 else if( ch == '2' ){
                     if( islink( m ) ){
                         getshortestpath( m, flag );
+                        gotoXY( limitLines+1, 0 );
                     }
                     else{
                         puts( "The maze is unlink!" );
                     }
+                    puts( "Press any to continue !" );
+                    getch();
                 }
 
                 else if( ch == '3' ){
                     if( !islink( m ) ){
                         puts( "The maze is unlink!" );
+                        puts( "Press any to continue !" );
+                        getch();
                         continue;
                     }
+
                     system( "cls" );
                     printmap( m );
+                    gotoXY( limitLines+2, 0 );
+                    puts( "Press any to quit after showed this path" );
 
                     memset( &flag, UNVISIT, sizeof( flag ) );
+                    flag._m[ constBeginLines ][ constBeginCols ] = ISVISIT;     // 添加了 出发点被访问标记
                     dfs( p, m, flag, pos );
 
                     gotoXY( limitLines+1, 0 );
@@ -186,7 +190,15 @@ void run()
                         printonepath( p, i );
                         Sleep( 1000 );
                         cancelprintonepath( p, i );
+
+                        if( kbhit() ){
+                            getch();
+                            break;
+                        }
                     }
+
+                    deletepath( p );                                // 释放内存
+                    memset( &p, 0, sizeof( p ) );                   // 初始化 路径数组， 解决存在再次运行出现路径增加问题
                 }
             }
         }
@@ -204,25 +216,30 @@ void run()
 void editgameinterface()
 {
     system( "cls" );
-    puts( "Press [1], to edit maze" );
-    puts( "Press [2] to test for shortest path in the maze" );
-    puts( "Press [3] to test for all path in the maze " );
-    puts( "Press [4] to quit" );
+    puts( "------------------------------------------------------------------" );
+    puts( "\t***  Press [1], to edit maze                             ***" );
+    puts( "\t***  Press [2], to test for shortest path in the maze    ***" );
+    puts( "\t***  Press [3], to test for all path in the maze         ***" );
+    puts( "\t***  Press [4], to quit                                  ***" );
+    puts( "------------------------------------------------------------------" );
 }
 
 void firstinterface()
 {
     system( "cls" );
-    puts( "Press [1], choose play game" );
-    puts( "Press [2], choose edit maze" );
-    puts( "Press [3], choose quit the game" );
+    puts( "------------------------------------------------------------------" );
+    puts( "\t***\tPress [1], choose play game\t\t***" );
+    puts( "\t***\tPress [2], choose edit maze\t\t***" );
+    puts( "\t***\tPress [3], choose quit the game\t\t***" );
+    puts( "------------------------------------------------------------------" );
 }
 
 void playgameinterface()
 {
     system( "cls" );
-    printf( "MOVE Tips: 'a' is Left, 's' is Down, 'd' is Right, 'w' is Up \n" );
-    puts( "Press any to start game" );
+    printf( "MOVE Tips: 'a' is Left, 's' is Down, 'd' is Right, 'w' is Up. \n" );
+    printf( "QUIT Tips: 'q' is quit and you're lose the game at the time !\n" );
+    puts( "Press any to start game ." );
     getch();
 }
 
@@ -323,7 +340,7 @@ void dfs( path  & p, node & m, node & flag, P beginPoint )
     -- p.tmpStore;
 }
 
-void edit( node &m )
+void edit( node & m )
 {
     P pos, tmpPos;
     pos.first = constBeginLines;
@@ -336,10 +353,7 @@ void edit( node &m )
     gotoXY( pos.first, (pos.second)<<1 );
     while( 1 ){
         char ch = getch();
-        if( ch == UP ){
-            tmpPos.first = pos.first -1;
-            tmpPos.second = pos.second;
-        }
+
         if( ch == UP ){
             tmpPos.first = pos.first -1;
             tmpPos.second = pos.second;
@@ -364,13 +378,16 @@ void edit( node &m )
             return;
         }
 
-        else if( ch == CHANGE ){
+        else if( ch == CHANGE && !( pos.first == constBeginLines && pos.second == constBeginCols ) ){
             m._m[ pos.first ][ pos.second ] = ( m._m[ pos.first ][ pos.second ] == ISWALL ? ( ISNULL ) : ( ISWALL ) );
             gotoXY( pos.first, (pos.second)<<1 );
             printf( "%s", ( m._m[ pos.first ][ pos.second ] == ISWALL ? ( WALL ) : ( ISNULLSTR ) ) );
         }
 
-        if( is_move( tmpPos.first, tmpPos.second ) ){
+        if( is_move( tmpPos.first, tmpPos.second )
+            && tmpPos.first != 0 && tmpPos.first != limitLines
+            && tmpPos.second != 0 && tmpPos.second != limitCols ){
+
             pos = tmpPos;
             gotoXY( pos.first, (pos.second)<<1 );
         }
@@ -395,7 +412,10 @@ void game( node & m )
     while( !( pos.first == limitLines && pos.second == limitCols ) ){
         if( !gameTime ){
             system( "cls" );
+            gotoXY( 0, 0 );
             puts( "You lose the game !" );
+            puts( "Press any to continue" );
+            getch();
             return ;
         }
 
@@ -419,7 +439,14 @@ void game( node & m )
                 tmpPos.first = pos.first;
                 tmpPos.second = pos.second +1;
             }
-
+            else if( ch == QUIT ){
+                system( "cls" );
+                gotoXY( 0, 0 );
+                puts( "You lose the game !" );
+                puts( "Press any to continue" );
+                getch();
+                return ;
+            }
             if( is_legal_move( tmpPos.first, tmpPos.second ) ){
                 gotoXY( pos.first, (pos.second)<<1 );
                 printf( "%s", ISNULLSTR );
@@ -439,6 +466,8 @@ void game( node & m )
 
     system( "cls" );
     puts( "You win the game !" );
+    puts( "Press any to continue !" );
+    getch();
 }
 
 void getshortestpath( node & m, node & flag )
