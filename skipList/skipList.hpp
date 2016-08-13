@@ -39,7 +39,6 @@ struct __skipListNode
         this->__t = new __T;
         
         // 进行 错误 处理
-        assert(this->__t);
         if(!this->__t) {
             fprintf(stderr, "Cann't new mem in struct __skipListNode construction");
         }
@@ -69,24 +68,18 @@ public:
         this->head = new __skipListNode < __T >  [this->maxLevel+1];
         this->recordPath = new __skipListNode < __T > * [this->maxLevel+1];
         
-//        // 若分配 内存 失败， 进行错误处理
-//        if(!this->head) {
-//            fprintf(stderr, "Cann't new head array mem in skipList construction");
-//        }
-//         assert(this->head);
-//        
-//        if(!this->recordPath) {
-//            fprintf(stderr, "Cann't new recordPath array variable mem in skipList construction");
-//        }
-//        assert(this->recordPath);
-//        
+        // 若分配 内存 失败， 进行错误处理
+        if(!this->head) {
+            fprintf(stderr, "Cann't new head array mem in skipList construction");
+        }
+        
+        if(!this->recordPath) {
+            fprintf(stderr, "Cann't new recordPath array variable mem in skipList construction");
+        }
+        
         // 初始化 head 和 recordPath 数组指针
-        //memset(this->recordPath, 0, maxLevel * sizeof(__skipListNode < __T > *));
-        //memset(this->head, 0, maxLevel * sizeof(__skipListNode < __T > *));
         for(unsigned int i=0; i < this->maxLevel; ++ i) {
             this->head[i].next = NULL;
-            //this->head[i].__t = new __T;
-            //memset(this->head[i].__t, 0, sizeof __T);
         }
         
         // 初始化 random_0_1() 模拟硬币投掷函数
@@ -103,6 +96,9 @@ public:
                 this->del(*this->head[i].next->__t);
             }
         }
+        
+        delete [] this->head;
+        delete [] this->recordPath;
     }
     
     
@@ -177,18 +173,16 @@ public:
             auto p__SkipListNode = new __skipListNode < __T > [ tmpLevel ];
             __T * p__t = new __T;
             
-//            // 判断 节点有没有生成
-//            assert(p__SkipListNode);
-//            if(!p__SkipListNode) {
-//                fprintf(stderr, "Cann't new mem in function insert from class skipList01");
-//                return isInserted;
-//            }
-//            
-//            assert(p__t);
-//            if(!p__t) {
-//                fprintf(stderr, "Can't new mem in function insert from class skipList02");
-//                return isInserted;
-//            }
+            // 判断 节点有没有生成
+            if(!p__SkipListNode) {
+                fprintf(stderr, "Cann't new mem in function insert from class skipList01");
+                return isInserted;
+            }
+
+            if(!p__t) {
+                fprintf(stderr, "Can't new mem in function insert from class skipList02");
+                return isInserted;
+            }
             
             // 赋值
             *p__t = __t;
