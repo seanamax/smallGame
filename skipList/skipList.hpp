@@ -69,17 +69,17 @@ public:
         this->head = new __skipListNode < __T >  [this->maxLevel+1];
         this->recordPath = new __skipListNode < __T > * [this->maxLevel+1];
         
-        // 若分配 内存 失败， 进行错误处理
-        if(!this->head) {
-            fprintf(stderr, "Cann't new head array mem in skipList construction");
-        }
-        assert(this->head);
-        
-        if(!this->recordPath) {
-            fprintf(stderr, "Cann't new recordPath array variable mem in skipList construction");
-        }
-        assert(this->recordPath);
-        
+//        // 若分配 内存 失败， 进行错误处理
+//        if(!this->head) {
+//            fprintf(stderr, "Cann't new head array mem in skipList construction");
+//        }
+//         assert(this->head);
+//        
+//        if(!this->recordPath) {
+//            fprintf(stderr, "Cann't new recordPath array variable mem in skipList construction");
+//        }
+//        assert(this->recordPath);
+//        
         // 初始化 head 和 recordPath 数组指针
         //memset(this->recordPath, 0, maxLevel * sizeof(__skipListNode < __T > *));
         //memset(this->head, 0, maxLevel * sizeof(__skipListNode < __T > *));
@@ -152,28 +152,19 @@ public:
         // 获得 该 路径
         this->getRecordPath(__t);
         
-        // 若 已经存在该节点， 直接 修改赋值， 返回结果
+        // 简化 指针
         auto p__SkipListNode = this->recordPath[this->maxLevel-1]->next;
         
         
+        // 若 已经存在该节点， 直接 修改赋值， 返回结果
         if(p__SkipListNode && !this->Comp(__t, *p__SkipListNode->__t) && !this->Comp(*p__SkipListNode->__t, __t)) {
             
-            for(unsigned int i=0; i < this->maxLevel; ++ i) {
-                
-                p__SkipListNode = this->recordPath[i]->next;
-                
-                // 判断 指针是否存在 以及 是否 相等
-                if(p__SkipListNode && !this->Comp(__t, *p__SkipListNode->__t) && !this->Comp(*p__SkipListNode->__t, __t)) {
+            // 赋值
+            *p__SkipListNode->__t = __t;
                     
-                    // 赋值
-                    *p__SkipListNode->__t = __t;
-                    
-                    // 插入成功
-                    isInserted = true;
-                    
-                    break;
-                }
-            }
+            // 插入成功
+            isInserted = true;
+
         }
         
         // 若是 没有该节点， 直接建立节点
@@ -186,18 +177,18 @@ public:
             auto p__SkipListNode = new __skipListNode < __T > [ tmpLevel ];
             __T * p__t = new __T;
             
-            // 判断 节点有没有生成
-            assert(p__SkipListNode);
-            if(!p__SkipListNode) {
-                fprintf(stderr, "Cann't new mem in function insert from class skipList01");
-                return isInserted;
-            }
-            
-            assert(p__t);
-            if(!p__t) {
-                fprintf(stderr, "Can't new mem in function insert from class skipList02");
-                return isInserted;
-            }
+//            // 判断 节点有没有生成
+//            assert(p__SkipListNode);
+//            if(!p__SkipListNode) {
+//                fprintf(stderr, "Cann't new mem in function insert from class skipList01");
+//                return isInserted;
+//            }
+//            
+//            assert(p__t);
+//            if(!p__t) {
+//                fprintf(stderr, "Can't new mem in function insert from class skipList02");
+//                return isInserted;
+//            }
             
             // 赋值
             *p__t = __t;

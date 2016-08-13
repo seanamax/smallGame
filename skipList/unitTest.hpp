@@ -24,9 +24,11 @@ namespace std
     bool skipListNode__cmp(int var1, int var2);
     
     
-    /* 测试 skipList 的 构造函数 和 析构函数 */
+    /* 第一组测试 skipList */
     void skipListFirstTest();
     
+    /* 第二组测试 skipList */
+    void skipListSecondTest();
     
     /* int 类型比较 */
     bool intCmp(int var1, int var2);

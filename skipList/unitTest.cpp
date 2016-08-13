@@ -12,11 +12,14 @@
 /* 进行各种单元测试 */
 void std::unitTest()
 {
-    /* skipListNode 测试 */
-    std::skipListNodeTest();
+//    /* skipListNode 测试 */
+//    std::skipListNodeTest();
+//    
+//    /* 第一组测试 skipList */
+//    std::skipListFirstTest();
     
-    /* 测试 skipList 的析构 和 构造函数 */
-    std::skipListFirstTest();
+    /*  第二组测试 skipList */
+    std::skipListSecondTest();
     
 }
 
@@ -94,3 +97,37 @@ void std::skipListFirstTest()
     delete p;
 }
 
+void std::skipListSecondTest()
+{
+    
+    const unsigned int limit = 10000000;
+    
+    unsigned int firstNum, secondNum;
+    
+    auto p = new skipList < unsigned int > (limit);
+    
+    for(unsigned int i=0; i < limit; ++ i) {
+        firstNum = i;
+        if(!p->insert(firstNum)) {
+            std::cout << "Cann't insert in " << firstNum << std::endl;
+        }
+    }
+    
+    for(unsigned int i=0; i < limit; ++ i) {
+        firstNum = i;
+        secondNum = i+1;
+        if(!p->find(firstNum, secondNum) || firstNum != secondNum) {
+            std::cout << "Cann't find in " << firstNum << std::endl;
+        }
+    }
+    
+//    for(unsigned int i=0; i < limit; ++ i) {
+//        firstNum = i;
+//        secondNum = i+1;
+//        p->del(firstNum);
+//        
+//        if(p->find(firstNum, secondNum) || firstNum == secondNum) {
+//            std::cout << "Cann't del in " << firstNum << std::endl;
+//        }
+//    }
+}
