@@ -122,6 +122,11 @@ void MainMenu::menuTestCallback(Ref * pSender)
     if(Setting::effectSound) {
         SimpleAudioEngine::getInstance()->playEffect("sounds/Blip.wav");
     }
+    
+    auto scene = ChessBoard::createScene();
+    auto sc = TransitionMoveInR::create(1.0f, scene);
+    
+    Director::getInstance()->pushScene(sc);
 }
 
 void MainMenu::menuPlayWithComputerCallback(Ref * pSender)

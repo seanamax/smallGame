@@ -12,8 +12,8 @@
 USING_NS_CC;
 using namespace CocosDenshion;
 
-bool Setting::effectSound = true;
-bool Setting::backgroundMusic = true;
+bool Setting::effectSound = false;
+bool Setting::backgroundMusic = false;
 
 Scene * Setting::createScene()
 {
@@ -92,7 +92,7 @@ void Setting::MenuItemToggleSettingBackgroundMusic(Ref * pSender)
     Setting::backgroundMusic = !Setting::backgroundMusic;
     
     if(Setting::backgroundMusic) {
-        SimpleAudioEngine::getInstance()->playBackgroundMusic("sounds/music_logo.mp3");
+        SimpleAudioEngine::getInstance()->playBackgroundMusic("sounds/music_logo.mp3", true);
     }
     else {
         SimpleAudioEngine::getInstance()->pauseBackgroundMusic();

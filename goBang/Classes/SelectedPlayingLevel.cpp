@@ -122,7 +122,7 @@ void SelectedPlayingLevel::onEnterTransitionDidFinish()
     SimpleAudioEngine::getInstance()->stopBackgroundMusic();
     
     if(Setting::backgroundMusic) {
-        SimpleAudioEngine::getInstance()->playBackgroundMusic("sounds/Synth.mp3");
+        SimpleAudioEngine::getInstance()->playBackgroundMusic("sounds/Synth.mp3", true);
     }
     
 }

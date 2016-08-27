@@ -13,6 +13,7 @@
 #include "SimpleAudioEngine.h"
 #include "Setting.hpp"
 #include "SelectedPlayingLevel.hpp"
+#include "Testing.hpp"
 
 class MainMenu : public cocos2d::Layer
 {
