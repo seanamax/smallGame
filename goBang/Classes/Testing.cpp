@@ -51,21 +51,6 @@ bool ChessBoard::init()
                                 origin.y + 50.0f));
     cancelItem->setAnchorPoint(Vec2(0.5f, 0.5f));
     
-    
-//    log("cancelItem width = %f, height = %f", cancelItem->getContentSize().width,
-//        cancelItem->getContentSize().height);
-//    
-//    log("cancelItem x = %f, y = %f", cancelItem->getPosition().x,
-//        cancelItem->getPosition().y);
-//    
-//    Vec2 p = convertToWorldSpace(cancelItem->getPosition());
-//    log("test %f %f", p.x, p.y);
-
-//    Rect rec = bg->getBoundingBox();
-//    
-//    log("%f %f %f %f", rec.getMinX(), rec.getMinY(), rec.getMaxX(), rec.getMaxY());
-//    
-    
     Menu * mn = Menu::create(cancelItem, NULL);
     
     mn->setPosition(Vec2::ZERO);
@@ -75,6 +60,8 @@ bool ChessBoard::init()
     setTouchEnabled(true);
     
     setTouchMode(Touch::DispatchMode::ONE_BY_ONE);
+    
+    this->initChessboard();
     
     return true;
 }
@@ -112,89 +99,43 @@ bool ChessBoard::onTouchBegan(Touch * touch, Event * event)
     
     auto location = touch->getLocationInView();
     
-    Rect rect = this->getChildByTag(k_Bg)->boundingBox();
-    
-    float interval = (rect.getMaxY() - rect.getMinY()) / 20.0f;
-    
+    location = Director::getInstance()->convertToGL(location);
     
     if(this->rectContainsPoint(location, k_Bg)) {
         
-        location.x = (location.x - rect.getMinX()) / interval - 1.0f;
-        location.y = (location.y - rect.getMinY()) / interval - 1.0f;
-        
-        // 端点
-        int x, y;
-        
-        // 对 x, y 修正
-        if(location.x - (int)location.x > 0.5) {
-            x = location.x + 1;
-        }
-        else {
-            x = location.x;
-        }
-        
-        if(location.y - (int)location.y > 0.5) {
-            y = location.y + 1;
-        }
-        else {
-            y = location.y;
-        }
-        
-        
-        if(x < 19 && y < 19) {
+
+        auto pos = this->convertToMatrix(location, k_Bg);
+   
+        if(JUDGE_EDGE(pos)) {
             
-            auto pos = Vec2((x + 1) * interval + rect.getMinX(),
-                            (y + 1) * interval + rect.getMinY());
-            
-            pos = Director::getInstance()->convertToGL(pos);
-            
-            //this->showBWByGLCoord(pos, k_White);
-            
-            y = 18 - y;
-            if(this->chessboard[x][y] == k_Null) {
+            //pos.y = 18 - pos.y;
+            if(this->chessboard[(int)pos.x][(int)pos.y] == k_Null) {
                 
-                this->chessboard[x][y] = k_Black;
-                this->showBWByMatrix(Vec2(x, y), k_Bg);
+                this->chessboard[(int)pos.x][(int)pos.y] = k_Black;
+                this->showBWByMatrix(Vec2(pos.x, pos.y), k_Bg);
                 
                 log("test1");
                 
             }
             
-            else if(this->chessboard[x][y] == k_Black) {
-                
-                this->removeChildByTag(1000);
-                
-                
-                this->chessboard[x][y] = k_White;
-                
-                this->removeBWByMatrixCoord(Vec2(x, y));
-                this->showBWByMatrix(Vec2(x, y), k_Bg);
-                
-                log("test2");
-            }
-            
             else {
+                this->chessboard[(int)pos.x][(int)pos.y] = k_Null;
+                this->removeBWByMatrixCoord(pos);
+            }
+
+            //log("test win() %d", win(Vec2((int)pos.x, (int)pos.y)));
+            log("%f %f", pos.x, pos.y);
+            
+            
+            int tag = this->win(pos);
+            
+            if(tag) {
                 
-                this->chessboard[x][y] = k_Null;
-                //this->removeBWByMatrixCoord(Vec2(x, y));
+                pos = this->getUpPointByWinPos(pos, tag);
                 
-                //log("test");
-                
-                auto redLine = Sprite::create("2ODRedLine.png");
-                
-                redLine->setTag(1000);
-                
-                redLine->setPosition(this->convertToGL(Vec2(x, y), k_Bg));
-                redLine->setAnchorPoint(Vec2(1.0f, 1.0f));
-                
-                this->addChild(redLine);
-                
-                log("test3");
-                
-                
+                this->showLineByPos(pos, tag);
             }
             
-            log("test win() %d", win(Vec2(x, y)));
             
         }
         
@@ -334,28 +275,32 @@ int ChessBoard::win(cocos2d::Vec2 pos)
 {
     int direct = 0;
     
-    if(this->calcBWNumByDirect(pos, 1) + this->calcBWNumByDirect(pos, 5) +
+    if(this->chessboard[(int)pos.x][(int)pos.y] == k_Null) {
+        return direct;
+    }
+    
+    if(this->calcBWNumByDirect(pos, k_12OD) + this->calcBWNumByDirect(pos, k_6OD) +
        1 >= LIMIT_NUM_BW) {
         
-        direct = 1;
+        direct = k_12OD;
     }
     
-    else if(this->calcBWNumByDirect(pos, 2) + this->calcBWNumByDirect(pos, 6) +
+    else if(this->calcBWNumByDirect(pos, k_1AndHalfOD) + this->calcBWNumByDirect(pos, k_7AndHalfOD) +
             1 >= LIMIT_NUM_BW) {
         
-        direct = 2;
+        direct = k_1AndHalfOD;
     }
     
-    else if(this->calcBWNumByDirect(pos, 3) + this->calcBWNumByDirect(pos, 7) +
+    else if(this->calcBWNumByDirect(pos, k_3OD) + this->calcBWNumByDirect(pos, k_9OD) +
             1 >= LIMIT_NUM_BW) {
         
-        direct = 3;
+        direct = k_3OD;
     }
     
-    else if(this->calcBWNumByDirect(pos, 4) + this->calcBWNumByDirect(pos, 8) +
+    else if(this->calcBWNumByDirect(pos, k_4AndHaleOD) + this->calcBWNumByDirect(pos, k_10AndHalfOD) +
             1 >= LIMIT_NUM_BW) {
         
-        direct = 4;
+        direct = k_10AndHalfOD;
     }
     
     return direct;
@@ -368,11 +313,13 @@ Vec2 ChessBoard::convertToGL(cocos2d::Vec2 pos, int tag)
     
     Vec2 pos2 = Vec2::ZERO;
     
+    assert(item);
+    
     if(item) {
         
         Rect rect = item->boundingBox();
         
-        float interval = (rect.getMaxX() - rect.getMinX()) / 20.0f;
+        float interval = (rect.getMaxX() - rect.getMinX()) / (float)(this->LIMIT_CHESSBOARD + 1);
         
         // 换算成 GL坐标的值
         pos2 = Vec2(pos.x * interval + rect.getMinX() + interval,
@@ -384,9 +331,127 @@ Vec2 ChessBoard::convertToGL(cocos2d::Vec2 pos, int tag)
 }
 
 
+Vec2 ChessBoard::convertToMatrix(cocos2d::Vec2 pos, int tag)
+{
+    Vec2 pos2 = Vec2::ZERO;
+    
+    auto item = this->getChildByTag(tag);
+    
+    assert(item);
+    
+    if(item) {
+        
+        Rect rect = item->boundingBox();
+        
+        float interval = (rect.getMaxX() - rect.getMinX()) / (float)(this->LIMIT_CHESSBOARD + 1);
+        
+        pos2 = Vec2((pos.x - rect.getMinX()) / interval,
+                    (pos.y - rect.getMinY()) / interval);
+        
+        
+        // 修正 偏差
+        if(pos2.x - (int)pos2.x >= 0.5f) {
+            pos2.x = 1 + (int)pos2.x;
+        }
+        else {
+            pos2.x = (int)pos2.x;
+        }
+        
+        if(pos2.y - (int)pos2.y >= 0.5f) {
+            pos2.y = 1 + (int)pos2.y;
+        }
+        else {
+            pos2.y = (int)pos2.y;
+        }
+        
+        pos2 -= Vec2(1.0f, 1.0f);
+    }
+    
+    return pos2;
+}
 
 
+Vec2 ChessBoard::getUpPointByWinPos(cocos2d::Vec2 centre, int tag)
+{
+    
+    for(Vec2 pos = centre; JUDGE_EDGE(pos); pos += Vec2(this->moveX[tag],
+                                                   this->moveY[tag])) {
+        
+        if(this->chessboard[(int)pos.x][(int)pos.y] ==
+           this->chessboard[(int)centre.x][(int)centre.y]) {
+            
+            centre = pos;
+            
+        }
+        
+        else {
+            
+            break;
+            
+        }
+    }
+    
+    
+    return centre;
+    
+}
 
+void ChessBoard::showLineByPos(cocos2d::Vec2 pos, int tag)
+{
+    // 获得线段端点
+    pos = this->getUpPointByWinPos(pos, tag);
+    
+    // 转换成 GL坐标点
+    pos = this->convertToGL(pos, k_Bg);
+    
+    if(tag == k_12OD) {
+        
+        auto item = Sprite::create("12ODRedLine.png");
+        item->setPosition(pos);
+        item->setAnchorPoint(Vec2(0.5f, 1.0f));
+        item->setTag(tag);
+        
+        this->addChild(item);
+        
+    }
+    
+    else if(tag == k_1AndHalfOD) {
+        
+        auto item = Sprite::create("1AndHalfODRedLine.png");
+        item->setPosition(pos);
+        item->setAnchorPoint(Vec2(1.0f, 1.0f));
+        item->setTag(tag);
+        
+        this->addChild(item);
+    }
+    
+    else if(tag == k_3OD) {
+        
+        auto item = Sprite::create("3ODRedLine.png");
+        item->setPosition(pos);
+        item->setAnchorPoint(Vec2(1.0f, 0.5f));
+        
+        this->addChild(item);
+    }
+    
+    else if(tag == k_10AndHalfOD) {
+        
+        auto item = Sprite::create("10AndHalfODRedLine.png");
+        item->setPosition(pos);
+        item->setAnchorPoint(Vec2(0.0f, 1.0f));
+        
+        this->addChild(item);
+    }
+    
+}
+
+void ChessBoard::initChessboard()
+{
+    
+    memset(this->chessboard, k_Null, sizeof(chessboard));
+    
+    
+}
 
 
 

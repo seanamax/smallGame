@@ -23,19 +23,38 @@
     (0 <= pos.x && pos.x < LIMIT_CHESSBOARD \
     && 0 <= pos.y && pos.y < LIMIT_CHESSBOARD)
 
+
+// 八个方向
 enum
 {
-    k_Bg = 101
+    k_12OD = 1,             //  12点钟方向
+    k_1AndHalfOD,           //  1半点钟方向
+    k_3OD,                  //  3点钟方向
+    k_4AndHaleOD,
+    k_6OD,                  //  6点钟方向
+    k_7AndHalfOD,           //  7点半钟方向
+    k_9OD,                  //  9点钟方向
+    k_10AndHalfOD,          //  10半点钟方向
 };
 
-
+// 精灵 tag
 enum
 {
-    k_Null,
-    k_Black,
+    k_Bg = 101,
+    k_Line,
+    
+};
+
+// 棋子类型
+enum
+{
+    k_Null = 0,
+    k_Black = 1000,
     k_White
 };
 
+
+    
 class ChessBoard : public cocos2d::Layer
 {
     
@@ -74,7 +93,9 @@ public:
     
     // 换算矩阵点 到 实际屏幕点
     cocos2d::Vec2 convertToGL(cocos2d::Vec2 pos, int tag);
-
+    
+    // 换算屏幕点 到 矩阵点
+    cocos2d::Vec2 convertToMatrix(cocos2d::Vec2 pos, int tag);
     
     // 判断 位置是否在对象上
     bool rectContainsPoint(cocos2d::Vec2 pos, int tag);
@@ -91,8 +112,17 @@ public:
     
     void removeAllBWByMatrix();
     
+    // 判断是否胜利， 若是胜利， 返回非零， 数字代表方向
     int win(cocos2d::Vec2 pos);
     
+    // 获得 点 坐标
+    cocos2d::Vec2 getUpPointByWinPos(cocos2d::Vec2 pos, int tag);
+    
+    // 显示 线 位置， 形参分别 为 矩阵点坐标， 直线 类型
+    void showLineByPos(cocos2d::Vec2 pos, int tag);
+    
+    // 初始化 棋盘
+    void initChessboard();
     
     CREATE_FUNC(ChessBoard);
 };
