@@ -156,28 +156,45 @@ bool ChessBoard::onTouchBegan(Touch * touch, Event * event)
                 this->chessboard[x][y] = k_Black;
                 this->showBWByMatrix(Vec2(x, y), k_Bg);
                 
+                log("test1");
+                
             }
             
             else if(this->chessboard[x][y] == k_Black) {
+                
+                this->removeChildByTag(1000);
+                
                 
                 this->chessboard[x][y] = k_White;
                 
                 this->removeBWByMatrixCoord(Vec2(x, y));
                 this->showBWByMatrix(Vec2(x, y), k_Bg);
                 
+                log("test2");
             }
             
             else {
                 
                 this->chessboard[x][y] = k_Null;
-                this->removeBWByMatrixCoord(Vec2(x, y));
+                //this->removeBWByMatrixCoord(Vec2(x, y));
                 
-                log("test");
+                //log("test");
+                
+                auto redLine = Sprite::create("2ODRedLine.png");
+                
+                redLine->setTag(1000);
+                
+                redLine->setPosition(this->convertToGL(Vec2(x, y), k_Bg));
+                redLine->setAnchorPoint(Vec2(1.0f, 1.0f));
+                
+                this->addChild(redLine);
+                
+                log("test3");
+                
                 
             }
             
-
-
+            log("test win() %d", win(Vec2(x, y)));
             
         }
         
@@ -217,23 +234,11 @@ bool ChessBoard::rectContainsPoint(Vec2 pos, int tag)
 // 通过 矩阵下表获得 并 设定 棋子
 void ChessBoard::showBWByMatrix(Vec2 pos, int tag)
 {
-    // 获得 背景图
-    auto item = this->getChildByTag(tag);
-    if(item) {
-        auto rect = item->boundingBox();
-        
-        float interval = (rect.getMaxX() - rect.getMinX()) / 20.0f;
-        
-        // 换算成 GL坐标的值
-        Vec2 pos2 = Vec2(pos.x * interval + rect.getMinX() + interval,
-                         pos.y * interval + rect.getMinY() + interval);
 
+    Vec2 pos2 = convertToGL(pos, tag);
         
-        this->showBWByGLCoord(pos2, this->chessboard[(int)pos.x][(int)pos.y], CALC_BW_TAG(pos.x, pos.y));
+    this->showBWByGLCoord(pos2, this->chessboard[(int)pos.x][(int)pos.y], CALC_BW_TAG(pos.x, pos.y));
 
-    }
-    
-    
 }
 
 // 通过 GL 坐标 设定 棋子
@@ -260,6 +265,8 @@ void ChessBoard::showBWByGLCoord(cocos2d::Vec2 pos, int BW, int tag)
         
         this->addChild(white);
     }
+    
+
 }
 
 // 通过矩阵 获得并显示 棋子
@@ -287,6 +294,7 @@ void ChessBoard::removeBWByMatrixCoord(Vec2 pos)
     }
 }
 
+// 清屏
 void ChessBoard::removeAllBWByMatrix()
 {
     for(size_t i=0; i < this->LIMIT_CHESSBOARD; ++ i) {
@@ -298,3 +306,87 @@ void ChessBoard::removeAllBWByMatrix()
         }
     }
 }
+
+
+size_t ChessBoard::calcBWNumByDirect(Vec2 centre, size_t direct)
+{
+    size_t count = 0;
+    
+    for(Vec2 pos = Vec2(centre.x + this->moveX[direct],
+                        centre.y + this->moveY[direct]);
+        JUDGE_EDGE(pos);
+        pos += Vec2(this->moveX[direct], this->moveY[direct])) {
+        
+        if(this->chessboard[(int)pos.x][(int)pos.y] == this->chessboard[(int)centre.x][(int)centre.y]) {
+            ++ count;
+        }
+        
+        else {
+            break;      // 若不是己方棋子， 跳出， 不再循环查找
+        }
+    }
+    
+    return count;
+}
+
+
+int ChessBoard::win(cocos2d::Vec2 pos)
+{
+    int direct = 0;
+    
+    if(this->calcBWNumByDirect(pos, 1) + this->calcBWNumByDirect(pos, 5) +
+       1 >= LIMIT_NUM_BW) {
+        
+        direct = 1;
+    }
+    
+    else if(this->calcBWNumByDirect(pos, 2) + this->calcBWNumByDirect(pos, 6) +
+            1 >= LIMIT_NUM_BW) {
+        
+        direct = 2;
+    }
+    
+    else if(this->calcBWNumByDirect(pos, 3) + this->calcBWNumByDirect(pos, 7) +
+            1 >= LIMIT_NUM_BW) {
+        
+        direct = 3;
+    }
+    
+    else if(this->calcBWNumByDirect(pos, 4) + this->calcBWNumByDirect(pos, 8) +
+            1 >= LIMIT_NUM_BW) {
+        
+        direct = 4;
+    }
+    
+    return direct;
+}
+
+
+Vec2 ChessBoard::convertToGL(cocos2d::Vec2 pos, int tag)
+{
+    auto item = this->getChildByTag(tag);
+    
+    Vec2 pos2 = Vec2::ZERO;
+    
+    if(item) {
+        
+        Rect rect = item->boundingBox();
+        
+        float interval = (rect.getMaxX() - rect.getMinX()) / 20.0f;
+        
+        // 换算成 GL坐标的值
+        pos2 = Vec2(pos.x * interval + rect.getMinX() + interval,
+                         pos.y * interval + rect.getMinY() + interval);
+        
+    }
+    
+    return pos2;
+}
+
+
+
+
+
+
+
+
