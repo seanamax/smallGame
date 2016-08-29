@@ -30,7 +30,7 @@ enum
     k_12OD = 1,             //  12点钟方向
     k_1AndHalfOD,           //  1半点钟方向
     k_3OD,                  //  3点钟方向
-    k_4AndHaleOD,
+    k_4AndHaleOD,           //  4点半钟方向
     k_6OD,                  //  6点钟方向
     k_7AndHalfOD,           //  7点半钟方向
     k_9OD,                  //  9点钟方向
@@ -60,11 +60,14 @@ class ChessBoard : public cocos2d::Layer
     
 private:
     
-    //  第一位 置0 忽略， 12点钟方向为起点， 顺时针
+    
+    //  第一位 置0 忽略， 12点钟方向为起点， 顺时针旋转， 共 8 个 方向
     int moveX[9] = {0, 0, 1, 1, 1, 0, -1, -1, -1};
     int moveY[9] = {0, 1, 1, 0, -1, -1, -1, 0, 1};
     
     size_t calcBWNumByDirect(cocos2d::Vec2 centre, size_t direct);
+    
+    void showOneDirectLineByPos(cocos2d::Vec2 pos, int tag);
     
     
 public:
@@ -72,6 +75,8 @@ public:
     static bool hitChessBoard;
     
     static const unsigned int LIMIT_CHESSBOARD = 19;
+    
+    static const unsigned int LIMIT_DIRECTION = 8;
     
     static const unsigned int LIMIT_NUM_BW = 5;
     
@@ -116,7 +121,7 @@ public:
     int win(cocos2d::Vec2 pos);
     
     // 获得 点 坐标
-    cocos2d::Vec2 getUpPointByWinPos(cocos2d::Vec2 pos, int tag);
+    cocos2d::Vec2 getPointByWinPos(cocos2d::Vec2 pos, int tag);
     
     // 显示 线 位置， 形参分别 为 矩阵点坐标， 直线 类型
     void showLineByPos(cocos2d::Vec2 pos, int tag);

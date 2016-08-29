@@ -131,9 +131,10 @@ bool ChessBoard::onTouchBegan(Touch * touch, Event * event)
             
             if(tag) {
                 
-                pos = this->getUpPointByWinPos(pos, tag);
+                //pos = this->getPointByWinPos(pos, tag);
                 
                 this->showLineByPos(pos, tag);
+                
             }
             
             
@@ -300,7 +301,7 @@ int ChessBoard::win(cocos2d::Vec2 pos)
     else if(this->calcBWNumByDirect(pos, k_4AndHaleOD) + this->calcBWNumByDirect(pos, k_10AndHalfOD) +
             1 >= LIMIT_NUM_BW) {
         
-        direct = k_10AndHalfOD;
+        direct = k_4AndHaleOD;
     }
     
     return direct;
@@ -371,7 +372,7 @@ Vec2 ChessBoard::convertToMatrix(cocos2d::Vec2 pos, int tag)
 }
 
 
-Vec2 ChessBoard::getUpPointByWinPos(cocos2d::Vec2 centre, int tag)
+Vec2 ChessBoard::getPointByWinPos(cocos2d::Vec2 centre, int tag)
 {
     
     for(Vec2 pos = centre; JUDGE_EDGE(pos); pos += Vec2(this->moveX[tag],
@@ -398,51 +399,23 @@ Vec2 ChessBoard::getUpPointByWinPos(cocos2d::Vec2 centre, int tag)
 
 void ChessBoard::showLineByPos(cocos2d::Vec2 pos, int tag)
 {
-    // 获得线段端点
-    pos = this->getUpPointByWinPos(pos, tag);
     
-    // 转换成 GL坐标点
-    pos = this->convertToGL(pos, k_Bg);
+    // 从 组成的线段的两个端点分别划线， 使得出现超过 5个点 的时候， 不会出现一些点没有被连到
+    //log("ChessBoard::showLineByPos and before this->showOneDirectLineByPos");
+    log("ChessBoard::showLineByPos pos.x=%f  pos.y=%f tag=%d", pos.x, pos.y, tag);
+    // 从 默认 的端点 划线
+    this->showOneDirectLineByPos(pos, tag);
     
-    if(tag == k_12OD) {
-        
-        auto item = Sprite::create("12ODRedLine.png");
-        item->setPosition(pos);
-        item->setAnchorPoint(Vec2(0.5f, 1.0f));
-        item->setTag(tag);
-        
-        this->addChild(item);
-        
+    // 从另外一端点 划线
+    // 转换 端点 的类型
+    if(tag <= this->LIMIT_DIRECTION / 2) {
+        tag += this->LIMIT_DIRECTION / 2;
+    }
+    else {
+        tag -= this->LIMIT_DIRECTION / 2;
     }
     
-    else if(tag == k_1AndHalfOD) {
-        
-        auto item = Sprite::create("1AndHalfODRedLine.png");
-        item->setPosition(pos);
-        item->setAnchorPoint(Vec2(1.0f, 1.0f));
-        item->setTag(tag);
-        
-        this->addChild(item);
-    }
-    
-    else if(tag == k_3OD) {
-        
-        auto item = Sprite::create("3ODRedLine.png");
-        item->setPosition(pos);
-        item->setAnchorPoint(Vec2(1.0f, 0.5f));
-        
-        this->addChild(item);
-    }
-    
-    else if(tag == k_10AndHalfOD) {
-        
-        auto item = Sprite::create("10AndHalfODRedLine.png");
-        item->setPosition(pos);
-        item->setAnchorPoint(Vec2(0.0f, 1.0f));
-        
-        this->addChild(item);
-    }
-    
+    this->showOneDirectLineByPos(pos, tag);
 }
 
 void ChessBoard::initChessboard()
@@ -450,7 +423,151 @@ void ChessBoard::initChessboard()
     
     memset(this->chessboard, k_Null, sizeof(chessboard));
     
+}
+
+void ChessBoard::showOneDirectLineByPos(cocos2d::Vec2 pos, int tag)
+{
+    // 获得线段端点
+    pos = this->getPointByWinPos(pos, tag);
     
+    // 转换成 GL坐标点
+    pos = this->convertToGL(pos, k_Bg);
+    
+    log("ChessBoard::showOneDirectLineByPos pos.x=%f pos.y=%f", pos.x, pos.y);
+    
+    switch(tag) {
+            
+        case k_12OD:
+        {
+            
+            log("test k_12OD 1");
+            
+            
+            auto item = Sprite::create("12ODRedLine.png");
+            item->setPosition(pos);
+            item->setAnchorPoint(Vec2(0.5f, 1.0f));
+            item->setTag(tag);
+            
+            this->addChild(item);
+            
+            log("test k_12OD 2");
+            
+            break;
+            
+        }
+            
+            
+        case k_1AndHalfOD:
+        {
+            
+            auto item = Sprite::create("1AndHalfODRedLine.png");
+            item->setPosition(pos);
+            item->setAnchorPoint(Vec2(1.0f, 1.0f));
+            item->setTag(tag);
+            
+            this->addChild(item);
+            
+            break;
+            
+        }
+            
+        case  k_3OD:
+        {
+            
+            auto item = Sprite::create("3ODRedLine.png");
+            item->setPosition(pos);
+            item->setAnchorPoint(Vec2(1.0f, 0.5f));
+            item->setTag(tag);
+            
+            this->addChild(item);
+            
+            break;
+            
+        }
+            
+        case k_4AndHaleOD:
+        {
+            
+            auto item = Sprite::create("10AndHalfODRedLine.png");
+            item->setPosition(pos);
+            item->setAnchorPoint(Vec2(1.0f, 0.0f));
+            item->setTag(tag);
+            
+            this->addChild(item);
+            
+            break;
+            
+        }
+            
+            
+        case k_6OD:
+        {
+            
+            auto item = Sprite::create("12ODRedLine.png");
+            item->setPosition(pos);
+            item->setAnchorPoint(Vec2(0.5f, 0.0f));
+            item->setTag(tag);
+            
+            this->addChild(item);
+            
+            break;
+            
+        }
+            
+            
+        case k_7AndHalfOD:
+        {
+            
+            auto item = Sprite::create("1AndHalfODRedLine.png");
+            item->setPosition(pos);
+            item->setAnchorPoint(Vec2(0.0f, 0.0f));
+            item->setTag(tag);
+            
+            this->addChild(item);
+            
+            break;
+            
+        }
+            
+            
+        case k_9OD:
+        {
+            
+            auto item = Sprite::create("3ODRedLine.png");
+            item->setPosition(pos);
+            item->setAnchorPoint(Vec2(0.0f, 0.5f));
+            item->setTag(tag);
+            
+            this->addChild(item);
+            
+            break;
+            
+        }
+            
+            
+        case k_10AndHalfOD:
+        {
+            
+            auto item = Sprite::create("10AndHalfODRedLine.png");
+            item->setPosition(pos);
+            item->setAnchorPoint(Vec2(0.0f, 1.0f));
+            item->setTag(tag);
+            this->addChild(item);
+            
+            break;
+            
+        }
+            
+            
+        default:
+        {
+            
+            break;
+            
+        }
+    }
+    
+
 }
 
 
