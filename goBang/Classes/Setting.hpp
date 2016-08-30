@@ -10,8 +10,6 @@
 #define Setting_hpp
 
 #include "cocos2d.h"
-#include "SimpleAudioEngine.h"
-
 
 enum
 {

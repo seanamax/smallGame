@@ -7,6 +7,11 @@
 //
 
 #include "MainMenu.hpp"
+#include "SimpleAudioEngine.h"
+#include "Setting.hpp"
+#include "SelectedPlayingLevel.hpp"
+#include "Testing.hpp"
+#include "ChessBoard.hpp"
 
 USING_NS_CC;
 using namespace CocosDenshion;

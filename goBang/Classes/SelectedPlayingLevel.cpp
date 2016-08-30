@@ -7,11 +7,15 @@
 //
 
 #include "SelectedPlayingLevel.hpp"
+#include "PlayingWithComputer.hpp"
+#include "MainMenu.hpp"
+#include "SimpleAudioEngine.h"
+#include "Setting.hpp"
+#include "Testing.hpp"
 
 USING_NS_CC;
 using namespace CocosDenshion;
 
-unsigned int SelectedPlayingLevel::playingWithComputerLevel = Simple;
 
 Scene * SelectedPlayingLevel::createScene()
 {
@@ -71,6 +75,14 @@ void SelectedPlayingLevel::menuSimpleCallback(Ref * pSender)
     if(Setting::effectSound) {
         SimpleAudioEngine::getInstance()->playEffect("sounds/Blip.wav");
     }
+    
+    // 设置 难度， 切换 特定场景
+    PlayingWithComputer::setLevel(k_Simple);
+    auto scene = PlayingWithComputer::createScene();
+    auto sc = TransitionFade::create(1.0f, scene);
+    
+    Director::getInstance()->replaceScene(sc);
+    
 }
 
 
@@ -82,6 +94,13 @@ void SelectedPlayingLevel::menuOrdinayCallback(Ref * pSender)
     if(Setting::effectSound) {
         SimpleAudioEngine::getInstance()->playEffect("sounds/Blip.wav");
     }
+    
+    // 设置 难度， 切换 特定场景
+    PlayingWithComputer::setLevel(k_Ordinary);
+    auto scene = PlayingWithComputer::createScene();
+    auto sc = TransitionFade::create(1.0f, scene);
+    
+    Director::getInstance()->replaceScene(sc);
 }
 
 
@@ -93,6 +112,13 @@ void SelectedPlayingLevel::menuDifficultCallback(Ref * pSender)
     if(Setting::effectSound) {
         SimpleAudioEngine::getInstance()->playEffect("sounds/Blip.wav");
     }
+    
+    // 设置 难度， 切换 特定场景
+    PlayingWithComputer::setLevel(k_Difficult);
+    auto scene = PlayingWithComputer::createScene();
+    auto sc = TransitionFade::create(1.0f, scene);
+    
+    Director::getInstance()->replaceScene(sc);
     
 }
 

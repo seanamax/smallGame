@@ -10,24 +10,19 @@
 #define SelectedPlayingLevel_hpp
 
 #include "cocos2d.h"
-#include "PlayingWithComputer.hpp"
-#include "MainMenu.hpp"
-#include "SimpleAudioEngine.h"
+
 
 // 难度划分
 enum {
-    Simple = 3,
-    Ordinary = 5,
-    Difficult = 7
+    k_Simple = 3,
+    k_Ordinary = 5,
+    k_Difficult = 7
 };
 
 // 选择难度 层
 class SelectedPlayingLevel : public cocos2d::Layer
 {
 public:
-    
-    // 选择难度
-    static unsigned int playingWithComputerLevel;
     
     virtual bool init();
     

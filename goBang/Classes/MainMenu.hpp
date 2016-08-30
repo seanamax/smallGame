@@ -7,13 +7,9 @@
 //
 
 #ifndef MainMenu_hpp
-#define MainMenu_hpp
+#define MainMenu_hpp 1
 
 #include "cocos2d.h"
-#include "SimpleAudioEngine.h"
-#include "Setting.hpp"
-#include "SelectedPlayingLevel.hpp"
-#include "Testing.hpp"
 
 class MainMenu : public cocos2d::Layer
 {
