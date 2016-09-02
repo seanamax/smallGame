@@ -15,29 +15,27 @@
 USING_NS_CC;
 using namespace CocosDenshion;
 
-int PlayingWithComputer::_playingLevel = k_Simple;
-bool PlayingWithComputer::_stopFind = false;
+int PlayingWithComputer::_level = k_Difficult;
 
 bool PlayingWithComputer::getStopFind()
 {
-    return _stopFind;
+    return this->_Naina.getStop();
 }
 
 int PlayingWithComputer::getLevel()
 {
-    return _playingLevel;
+    return this->_level;
 }
 
 void PlayingWithComputer::setLevel(int playingLevel)
 {
-    
-    _playingLevel = playingLevel;
-    
+    _level = playingLevel;
+        
 }
 
 void PlayingWithComputer::setStopFind(bool stopFind)
 {
-    _stopFind = stopFind;
+    this->_Naina.setStop(stopFind);
 }
 
 bool PlayingWithComputer::init()
@@ -95,6 +93,7 @@ bool PlayingWithComputer::init()
     
     
     this->initChessboard();
+    this->_initNaina(k_White);
     
     //  设置 鼠标 点击 模式
     setTouchEnabled(true);
@@ -220,4 +219,86 @@ void PlayingWithComputer::onEnterTransitionDidFinish()
     
 }
 
+void PlayingWithComputer::_initNaina(int flag)
+{
+    
+    _Naina.setFlag(flag);
+    _Naina.initFirstFind(this->chessboard);
+    
+    if(_level == k_Simple) {
+        
+        _Naina.setDeepth(SIMPE_DEEPTH);
+        _Naina.setWidth(SIMPE_WIDTH);
 
+    }
+    
+    else if(_level == k_Ordinary) {
+        
+        _Naina.setDeepth(ORDINAY_DEEPTH);
+        _Naina.setWidth(ORDINAY_WIDTH);
+        
+    }
+    
+    else if(_level == k_Difficult) {
+        
+        _Naina.setDeepth(DIFFICULT_DEEPTH);
+        _Naina.setWidth(DIFFICULT_WIDTH);
+        
+    }
+}
+
+
+bool PlayingWithComputer::onTouchBegan(Touch * touch, Event * event)
+{
+    log("PlayingWithComputer::onTouchBegan");
+    
+    auto location = touch->getLocationInView();
+    
+    location = Director::getInstance()->convertToGL(location);
+    
+    if(this->rectContainsPoint(location, k_Bg)) {
+        
+        auto pos = this->convertToMatrix(location, k_Bg);
+        
+        if(JUDGE_EDGE(pos) && this->chessboard[(int)pos.x][(int)pos.y] == k_Null) {
+            
+            this->chessboard[(int)pos.x][(int)pos.y] = k_Black;
+            this->showBWByMatrix(pos, k_Bg);
+            
+            log("Show black in chessBoard");
+            
+            int tag = this->win(pos);
+            
+            if(tag) {
+                
+                this->showLineByPos(pos, tag);
+                
+                this->setTouchEnabled(false);
+                
+                log("Show black win");
+                
+                return false;
+            }
+            
+            pos = this->_Naina.findBestNext(pos);
+            
+
+            this->chessboard[(int)pos.x][(int)pos.y] = k_White;
+            this->showBWByMatrix(pos, k_Bg);
+            log("Show white in chessboard");
+            
+            tag = this->win(pos);
+            
+            if(tag && !this->_Naina.getStop()) {
+                
+                this->showLineByPos(pos, tag);
+                
+                this->setTouchEnabled(false);
+                
+                log("Show white win");
+            }
+        }
+    }
+    
+    return false;
+}

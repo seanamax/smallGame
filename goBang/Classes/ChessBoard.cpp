@@ -17,6 +17,8 @@ USING_NS_CC;
 using namespace CocosDenshion;
 
 bool ChessBoard::hitChessBoard = true;
+int ChessBoard::moveX[9] = {0, 0, 1, 1, 1, 0, -1, -1, -1};
+int ChessBoard::moveY[9] = {0, 1, 1, 0, -1, -1, -1, 0, 1};
 
 Scene * ChessBoard::createScene()
 {
@@ -265,10 +267,10 @@ size_t ChessBoard::calcBWNumByDirect(Vec2 centre, size_t direct)
 {
     size_t count = 0;
     
-    for(Vec2 pos = Vec2(centre.x + this->moveX[direct],
-                        centre.y + this->moveY[direct]);
+    for(Vec2 pos = Vec2(centre.x + moveX[direct],
+                        centre.y + moveY[direct]);
         JUDGE_EDGE(pos);
-        pos += Vec2(this->moveX[direct], this->moveY[direct])) {
+        pos += Vec2(moveX[direct], moveY[direct])) {
         
         if(this->chessboard[(int)pos.x][(int)pos.y] == this->chessboard[(int)centre.x][(int)centre.y]) {
             ++ count;

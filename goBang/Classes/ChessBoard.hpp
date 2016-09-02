@@ -12,15 +12,20 @@
 
 #include "cocos2d.h"
 
+
+
 // 计算 棋子
 #define CALC_BW_TAG(x, y) \
 (10 * x + y )
 
 // 判断 出界
 #define JUDGE_EDGE(pos) \
-(0 <= pos.x && pos.x < LIMIT_CHESSBOARD \
-&& 0 <= pos.y && pos.y < LIMIT_CHESSBOARD)
+(0 <= pos.x && pos.x < ChessBoard::LIMIT_CHESSBOARD \
+&& 0 <= pos.y && pos.y < ChessBoard::LIMIT_CHESSBOARD)
 
+
+#define ConvertToVec2(i) \
+cocos2d::Vec2(ChessBoard::moveX[i], ChessBoard::moveY[i])
 
 // 八个方向
 enum
@@ -48,7 +53,9 @@ enum
 {
     k_Null = 0,
     k_Black = 1000,
-    k_White
+    k_White,
+    k_Except
+    
 };
 
 
@@ -59,18 +66,13 @@ class ChessBoard : public cocos2d::Layer
     
 private:
     
-    
-    //  第一位 置0 忽略， 12点钟方向为起点， 顺时针旋转， 共 8 个 方向
-    int moveX[9] = {0, 0, 1, 1, 1, 0, -1, -1, -1};
-    int moveY[9] = {0, 1, 1, 0, -1, -1, -1, 0, 1};
-
-    
     size_t calcBWNumByDirect(cocos2d::Vec2 centre, size_t direct);
     
     void showOneDirectLineByPos(cocos2d::Vec2 pos, int tag);
     
     
 public:
+    
     
     static bool hitChessBoard;
     
@@ -79,6 +81,12 @@ public:
     static const unsigned int LIMIT_DIRECTION = 8;
     
     static const unsigned int LIMIT_NUM_BW = 5;
+    
+    //  第一位 置0 忽略， 12点钟方向为起点， 顺时针旋转， 共 8 个 方向
+    static int moveX[9];
+    static int moveY[9];
+    
+    
     
     // 游戏下棋的历史记录
     std::stack < cocos2d::Vec2 > historyOperation;

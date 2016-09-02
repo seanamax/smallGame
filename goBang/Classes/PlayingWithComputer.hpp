@@ -11,6 +11,16 @@
 
 #include "cocos2d.h"
 #include "ChessBoard.hpp"
+#include "Engine.hpp"
+
+#define SIMPE_WIDTH 3
+#define SIMPE_DEEPTH 4
+
+#define ORDINAY_WIDTH  3
+#define ORDINAY_DEEPTH 7
+
+#define DIFFICULT_WIDTH 3
+#define DIFFICULT_DEEPTH 10
 
 enum
 {
@@ -26,13 +36,17 @@ enum
 
 class PlayingWithComputer : public ChessBoard
 {
+    
 private:
     
-    static int _playingLevel;
+    Naina _Naina;
     
-    static bool _stopFind;
+    static int _level;
+    
+    void _initNaina(int flag);
     
 public:
+    
     
     virtual bool init();
     
@@ -40,11 +54,11 @@ public:
     
     static void setLevel(int playingLevel);
     
-    static void setStopFind(bool stopFind);
+    void setStopFind(bool stopFind);
     
-    static bool getStopFind();
+    bool getStopFind();
     
-    static int getLevel();
+    int getLevel();
     
     void menuRetractMoveCallback(Ref * pSender);
     
@@ -58,7 +72,7 @@ public:
     
     void onEnterTransitionDidFinish();
     
-    //virtual bool onTouchBegan(cocos2d::Touch * touch, cocos2d::Event * event);
+    virtual bool onTouchBegan(cocos2d::Touch * touch, cocos2d::Event * event);
     
     CREATE_FUNC(PlayingWithComputer);
 };
