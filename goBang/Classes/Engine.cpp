@@ -169,8 +169,8 @@ Vec2 Naina::findBestNext(Vec2 pos)
 //    log("In findBestnext() this->chessscore[this->_flag][9][7] = %d", this->_recordAllChessScore[1][this->_deepth][9][7]);
 //    log("In findBestnext() this->chessscore[this->_flag][9][6] = %d", this->_recordAllChessScore[1][this->_deepth][9][6]);
 //    log("In findBestnext() this->chessscore[this->_flag][9][5] = %d", this->_recordAllChessScore[1][this->_deepth][9][5]);
-    log("In findBestnext() this->_deepth = %d, this->_width = %d", this->_deepth, this->_width);
-    
+//    log("In findBestnext() this->_deepth = %d, this->_width = %d", this->_deepth, this->_width);
+//    
     return tmpPos;
 }
 
@@ -282,11 +282,91 @@ void Naina::calcScoreInPos(int deepth, Vec2 pos, int tag)
     // 总共 8 个 方向
     // 依次 顺时针 旋转
     
-    Vec2 tmpPos;
     int BWNum;
+    bool edge;
+    Vec2 tmpPos;
+    
+    log("test calcScoreInPos");
     int BWTag;
     int score = 0;
-    bool edge;
+    int _BWNum[3];
+    Vec2 _tmpPos;
+    int BWType;
+    
+    for(int i=1; i <= ChessBoard::LIMIT_DIRECTION / 2; ++ i) {
+        
+        for(int j=2 - ChessBoard::LIMIT_NUM_BW; j < 0; ++ j) {
+            log("test calcScoreInPos 2");
+            _BWNum[0] = _BWNum[1] = _BWNum[2] = 0;
+            BWTag = k_Empty;
+            
+            for(int k=j; k < j + ChessBoard::LIMIT_NUM_BW; ++ k) {
+                log("test calcScoreInPos 3");
+                _tmpPos = pos + k * ConvertToVec2(i);
+                
+                if(JUDGE_EDGE(_tmpPos)) {
+                    
+                    BWType = this->_recordAllChessBoard[deepth][(int)_tmpPos.x][(int)_tmpPos.y];
+                    
+                    if(BWType == k_Null) {
+                        ++ _BWNum[0];
+                    }
+                    
+                    else if(BWType == k_White) {
+                        ++ _BWNum[1];
+                    }
+                    
+                    else if(BWType == k_Black) {
+                        ++ _BWNum[2];
+                    }
+                }
+                
+                // 有边界， 五元组并不存在
+                else {
+                    //log("calcScoreInPos %d %d %d %d", )
+                    BWTag = k_Virtual;
+                    break;
+                    
+                }
+            }
+            
+            // 并不存在 五元组
+            if(BWTag == k_Virtual) {
+                log("no");
+                score += this->calcFiveTupleScore(tag, BWTag, 0);
+            }
+            
+            // 至少有一白一黑
+            else if(_BWNum[1] && _BWNum[2]) {
+                log("B and W");
+                BWTag = k_Polluted;
+                score += this->calcFiveTupleScore(tag, BWTag, 0);
+            }
+            
+            // 只存在 白棋
+            else if(_BWNum[1]) {
+                log("just B");
+                BWTag = k_White;
+                score += this->calcFiveTupleScore(tag, BWTag, _BWNum[1]);
+            }
+            
+            // 只存在 黑棋
+            else if(_BWNum[2]) {
+                log("just W");
+                BWTag = k_Black;
+                score += this->calcFiveTupleScore(tag, BWTag, _BWNum[2]);
+            }
+            
+            // 空位
+            else {
+                log("Empty");
+                BWTag = k_Empty;
+                score += this->calcFiveTupleScore(tag, BWTag, 0);
+            }
+        }
+    }
+    
+    
     
     for(size_t i=1; i <= ChessBoard::LIMIT_DIRECTION; ++ i) {
         
@@ -296,7 +376,7 @@ void Naina::calcScoreInPos(int deepth, Vec2 pos, int tag)
         for(size_t j=1; j < ChessBoard::LIMIT_NUM_BW; ++ j) {
             
             tmpPos = j * ConvertToVec2(i) + pos;
-            edge = JUDGE_EDGE(pos);
+            edge = JUDGE_EDGE(tmpPos);
             
             if(edge) {
                 // 判定 不是 第一次标记
@@ -422,7 +502,7 @@ int Naina::calcFiveTupleScore(int tag, int BWTag, int BWNum)
             
         }
         
-        else if(BWTag == k_Except) {
+        else if(BWTag == k_Virtual || BWTag == k_Polluted) {
             score = 0;
         }
     }
@@ -479,7 +559,7 @@ int Naina::calcFiveTupleScore(int tag, int BWTag, int BWNum)
             
         }
         
-        else if(BWTag == k_Except) {
+        else if(BWTag == k_Virtual || BWTag == k_Polluted) {
             
             score = 0;
             

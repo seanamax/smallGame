@@ -14,12 +14,12 @@
 #include "Engine.hpp"
 
 #define SIMPE_WIDTH 3
-#define SIMPE_DEEPTH 4
+#define SIMPE_DEEPTH 3
 
 #define ORDINAY_WIDTH  3
 #define ORDINAY_DEEPTH 7
 
-#define DIFFICULT_WIDTH 3
+#define DIFFICULT_WIDTH 2
 #define DIFFICULT_DEEPTH 10
 
 enum
